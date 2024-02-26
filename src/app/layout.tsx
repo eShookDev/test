@@ -5,7 +5,6 @@ import "./globals.css";
 import { Footer, Header } from "@/components";
 import SmoothScrolling from "@/components/SmoothScrolling";
 import { Provider } from "react-redux";
-import store from "@/redux/store";
 
 const inter = Inter({ subsets: ["latin"] });
 

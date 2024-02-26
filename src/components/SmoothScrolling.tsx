@@ -1,5 +1,5 @@
 "use client";
-import store from "@/redux/store";
+import { store } from "@/redux/store";
 import { ReactLenis } from "@studio-freight/react-lenis";
 
 import { PropsWithChildren } from "react";

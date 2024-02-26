@@ -4,20 +4,17 @@ import { Button } from "@/components/Button"
 import { Input } from "@/components/Input"
 import { Label } from "@/components/Label"
 import { onLoginSuccess } from "@/redux/auth/authSlice"
-import Link from "next/link"
+import { useAppDispatch, useAppSelector } from "@/redux/store";
+
 import { ChangeEvent, FormEvent, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
 
 const LoginPage = () => {
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const { user, isLoggedIn } = useSelector(state => state.auth)
-
-    console.log(user);
+    const { user, isLoggedIn } = useAppSelector(state => state.auth)
 
     const [formData, setFormData] = useState({ username: '', password: '' });
-    const [userLogin, setUserLogin] = useState({ username: '', password: '' });
 
     const onHandleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
