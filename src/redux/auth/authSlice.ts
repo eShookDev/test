@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface User {
     username: string
@@ -19,13 +19,35 @@ const initialState: AuthState = {
     isError: null
 }
 
+export const loginAsync = createAsyncThunk(
+    'auth/login',
+    async (userData) => {
+        try {
+            const response = await fetch("api/login", {
+                method: "POST",
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                body: JSON.stringify(userData)
+            })
+
+            // Error data check
+
+            // OK
+            return await response.json();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+)
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
         onLoginStart(state) { state.isLoading = true },
         onLoginSuccess(state, action: PayloadAction<User>) { state.isLoading = false; state.user = action.payload; state.isLoggedIn = true },
-        onLoginFailure(state, action: PayloadAction<string>){ state.isLoading = false; state.isError = action.payload }
+        onLoginFailure(state, action: PayloadAction<string>) { state.isLoading = false; state.isError = action.payload }
     }
 
 })
