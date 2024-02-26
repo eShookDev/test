@@ -81,8 +81,9 @@ const LoginPage = () => {
                                                 Password
                                             </Label>
                                             <Input
+                                                id="password"
+                                                placeholder="Password"
                                                 type="password"
-                                                autoCorrect="off"
                                                 name="password"
                                                 onChange={onHandleChange}
                                             />
