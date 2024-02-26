@@ -1,113 +1,278 @@
+'use client'
+
+import { Footer } from "@/components";
+import gsap from "gsap";
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { InView } from "react-intersection-observer";
+import SplitType from "split-type";
+
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
+
+  const [inView, setInView] = useState<boolean>(false);
+  const [showContent, setShowContent] = useState<boolean>(false);
+
+  useEffect(() => {
+    const { innerHeight } = window;
+    const target = document.querySelector(".page-in.hero__section-last");
+
+    if (inView) {
+
+      gsap.to('.text', {
+        scale: 4.2,
+        y: -220,
+        duration: 1,
+        onStart: () => setShowContent(true),
+        ease: "none",
+        scrollTrigger: {
+          trigger: target,
+          scrub: true,
+          start: 'top 200px',
+          end: `+=${innerHeight} bottom`
+        }
+      });
+    }
+  }, [inView])
+
+  useEffect(() => {
+    if (showContent) {
+      gsap.fromTo(".hero__container",
+        {
+          opacity: 0,
+          yPercent: 20,
+        },
+        {
+          opacity: 1,
+          yPercent: 0,
+          ease: "back.out",
+          scrollTrigger: {
+            trigger: '.hero__container',
+            scrub: true,
+            start: "top 70%",
+            end: "100% 30%"
+          }
+        }
+      );
+      gsap.to(".section__image-left", {
+        borderRadius: 400,
+        duration: 1.4,
+        scrollTrigger: {
+          trigger: ".section__image-left",
+          start: "top 70%",
+          end: "100% 30%",
+          toggleActions: "play pause pause reverse"
+        }
+      })
+
+      /** 
+      gsap.fromTo(".section__title",
+        {
+          opacity: 0,
+          yPercent: 30,
+        },
+        {
+          opacity: 1,
+          yPercent: 0,
+          scrollTrigger: {
+            trigger: '.section__title',
+            start: "top 70%",
+            end: "100% 40%"
+          }
+        }
+      );
+      
+
+      */
+
+      const sectionTitles = gsap.utils.toArray(".section__title");
+      sectionTitles.forEach((title: any, index) => {
+        const animation = gsap.fromTo(title, { autoAlpha: 0, x: -400, y: 200 }, { autoAlpha: 1, x: 0, y: 0 });
+        ScrollTrigger.create({
+          trigger: title,
+          animation,
+          toggleActions: "play pause pause reverse",
+        })
+      })
+
+      const sectionDescription = gsap.utils.toArray(".section__description");
+      sectionDescription.forEach((desc: any, index) => {
+        const animation = gsap.fromTo(desc, { autoAlpha: 0, x: -400 }, { autoAlpha: 1, x: 0 });
+        ScrollTrigger.create({
+          trigger: desc,
+          animation,
+          toggleActions: "play pause pause reverse",
+        })
+      })
+
+      gsap.fromTo(".box__item",
+        {
+          autoAlpha: 0,
+          yPercent: 20,
+        },
+        {
+          autoAlpha: 1,
+          yPercent: 0,
+          stagger: 0.2,
+          scrollTrigger: {
+            trigger: '.box__item',
+          }
+        }
+      );
+
+      gsap.to(".animation-rotate", { rotate: 90, repeat: -1, stagger: 0.4 })
+
+      const splitTypes = document.querySelectorAll('.animation-reveal')
+      splitTypes.forEach((char: any, i) => {
+
+        const fromColor = char.attributes.getNamedItem('data-from-color')?.value;
+        const toColor = char.attributes.getNamedItem('data-to-color')?.value;
+
+        const text = new SplitType(char, { types: 'chars' })
+
+        gsap.fromTo(text.chars,
+          {
+            color: fromColor,
+          },
+          {
+            color: toColor,
+            duration: 0.3,
+            stagger: 0.02,
+            scrollTrigger: {
+              trigger: char,
+              start: 'top 80%',
+              end: 'top 20%',
+              scrub: true,
+              markers: false,
+              toggleActions: 'play play reverse reverse'
+            }
+          })
+      })
+
+    }
+  }, [showContent])
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    <>
+      <main>
+        <video src="video.mp4" autoPlay muted loop className="hero__video"></video>
+        <div className="hero__video_filter"></div>
+        <InView threshold={0.5}>
+          {({ inView, ref }) => (
+            <section ref={ref} className={`${inView ? 'page-in' : ''}  hero__section`}>
+              <div className="hero__section-content container mx-auto">
+                <span>Believe the future for a better <p>world.</p></span>
+              </div>
+            </section>
+          )}
+        </InView>
+        <InView threshold={0.5}>
+          {({ inView, ref }) => (
+            <section ref={ref} className={`${inView ? 'page-in' : ''}  hero__section`}>
+              <div className="hero__section-content container mx-auto">
+                <span>Delivery the future, <p>smartly.</p></span>
+              </div>
+            </section>
+          )}
+        </InView>
+        <InView threshold={0.5} onChange={setInView}>
+          {({ inView, ref }) => (
+            <section ref={ref} className={`${inView ? 'page-in' : ''}  hero__section hero__section-last`}>
+              <div className="hero__section-content container mx-auto">
+                <span className="text">Research are the basis strategic of <p>New Changer</p></span>
+              </div>
+            </section>
+          )}
+        </InView>
+        {showContent && (
+          <>
+            <section className="h-screen w-full relative bg-[#f7f7f7] z-20">
+              <div className="container h-full flex flex-row justify-center items-center mx-auto hero__container">
+                <Image src={require("../../public/section_1.jpeg")} alt="" className="section__image-left" priority />
+                <div className="flex flex-col items-center">
+                  <span className="text-9xl font-black text-[#43ffcc] section__title">New Changer</span>
+                  <p className="mt-14 ml-20 text-3xl text-[#6e6e73] font-light antialiased section__description">New Changer è una società di ingegneria leader nei settori dell’utility ed ICT. La nostra esperienza professionale interessa la progettazione e gestione integrata di reti tecnologiche e di telecomunicazione, fornendo soluzioni ad alto contenuto tecnologico sia ad enti pubblici che ad aziende private.</p>
+                </div>
+              </div>
+            </section>
+            <section className="h-screen w-full relative bg-[#202328] z-20">
+              <div className="container h-full flex flex-col justify-center items-center mx-auto">
+                <span className="text-9xl font-black text-[#43ffcc] section__title">Your success, our reputation.</span>
+                <div className="grid grid-cols-5 gap-6  mt-14 items-stretch">
+                  <div className="relative flex flex-col p-10 gap-5 border border-[hsla(0,0%,100%,.07)] hover:border-[#43ffcc] box__item">
+                    <svg className="self-center animation-rotate" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="white"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                    <p className="text-[#43ffcc] self-center text-5xl">2.000</p>
+                    <p className="text-white self-center text-2xl text-center">Missioni Drone</p>
+                  </div>
+                  <div className="relative flex flex-col p-10 gap-5 border border-[hsla(0,0%,100%,.07)] hover:border-[#43ffcc] box__item">
+                    <svg className="self-center" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="white"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                    <div className="relative">
+                      <p className="text-[#43ffcc] self-center text-5xl text-center">20.000</p>
+                      <div className="absolute -right-2 -top-4 text-white font-thin">KM</div>
+                    </div>
+                    <p className="text-white self-center text-2xl text-center">Infrastrutture Progettate</p>
+                  </div>
+                  <div className="relative flex flex-col p-10 gap-5 border border-[hsla(0,0%,100%,.07)] hover:border-[#43ffcc] box__item">
+                    <svg className="self-center" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="white"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                    <p className="text-[#43ffcc] self-center text-5xl">1.500</p>
+                    <p className="text-white self-center text-2xl">Comuni Lavorati</p>
+                  </div>
+                  <div className="relative flex flex-col p-10 gap-5 border border-[hsla(0,0%,100%,.07)] hover:border-[#43ffcc] box__item">
+                    <svg className="self-center" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="white"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                    <div className="relative">
+                      <p className="text-[#43ffcc] self-center text-5xl">2.300.000</p>
+                      <div className="absolute -right-6 -top-6 text-white font-thin">Unità</div>
+                    </div>
+                    <p className="text-white self-center text-2xl text-center">Immobiliari Connesse</p>
+                  </div>
+                  <div className="relative flex flex-col p-10 gap-5 border border-[hsla(0,0%,100%,.07)] hover:border-[#43ffcc] box__item">
+                    <svg className="self-center" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="white"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                    <p className="text-[#43ffcc] self-center text-5xl">100</p>
+                    <p className="text-white self-center text-2xl text-center">Comuni Volati</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section className="h-screen w-full relative bg-[#f7f7f7] z-20">
+              <div className="container h-full flex justify-center items-center mx-auto">
+                <div className="flex flex-col w-1/2">
+                  <span className="text-9xl font-black text-[#43ffcc] section__title">Soluzioni</span>
+                  <p className="mt-10 text-3xl text-[#6e6e73] font-light antialiased section__description">New Changer è tra le maggiori società di consulenza per progettazione ingegneristica e project management, nei settori delle telecomunicazioni e delle infrastrutture di distribuzione. Assieme ai nostri clienti, forniamo soluzioni di alto livello incoraggiando innovazioni di processo volte alla continua ottimizzazione di costi, tempi di implementazione e facilità di manutenzione.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 items-stretch w-1/2">
+                  <div className="relative flex flex-col p-10 gap-5 rounded-2xl bg-black box__item">
+                    <p className="text-white self-center text-5xl">Progettazione</p>
+                    <svg className="self-center" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="#43ffcc"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                  </div>
+                  <div className="relative flex flex-col p-10 gap-5 rounded-2xl bg-black box__item">
+                    <p className="text-white self-center text-5xl">Controllo</p>
+                    <svg className="self-center" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="#43ffcc"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                  </div>
+                  <div className="relative flex flex-col p-10 gap-5 rounded-2xl bg-black box__item">
+                    <p className="text-white self-center text-5xl">Softare</p>
+                    <svg className="self-center" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="#43ffcc"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                  </div>
+                  <div className="relative flex flex-col p-10 gap-5 rounded-2xl bg-black box__item">
+                    <p className="text-white self-center text-5xl">Development</p>
+                    <svg className="self-center" xmlns="http://www.w3.org/2000/svg" height="80" viewBox="0 0 512 512" width="80" fill="#43ffcc"><path d="m256 241c-8.269531 0-15 6.730469-15 15s6.730469 15 15 15 15-6.730469 15-15-6.730469-15-15-15zm0 0"></path><path d="m371.070312 413.5c11.730469 11.71875 30.710938 11.71875 42.429688 0 11.730469-11.730469 11.71875-30.710938 0-42.429688l-51.441406-51.429687c-17-17-26.359375-39.601563-26.359375-63.640625s9.359375-46.640625 26.359375-63.640625l51.441406-51.429687c11.730469-11.730469 11.71875-30.710938 0-42.429688-11.730469-11.71875-30.699219-11.71875-42.429688 0l-51.429687 51.441406c-17 17-39.601563 26.359375-63.640625 26.359375s-46.640625-9.359375-63.640625-26.359375l-51.429687-51.441406c-11.730469-11.71875-30.710938-11.71875-42.429688 0-11.730469 11.730469-11.71875 30.710938 0 42.429688l51.441406 51.429687c17 17 26.359375 39.601563 26.359375 63.640625s-9.359375 46.640625-26.359375 63.640625l-51.441406 51.429687c-11.71875 11.730469-11.71875 30.710938 0 42.429688 11.730469 11.71875 30.699219 11.71875 42.429688 0l51.429687-51.441406c17-17 39.601563-26.359375 63.640625-26.359375s46.640625 9.359375 63.640625 26.359375zm-115.070312-112.5c-24.808594 0-45-20.191406-45-45s20.191406-45 45-45 45 20.191406 45 45-20.191406 45-45 45zm0 0"></path><path d="m349.851562 77.289062c23.449219-23.429687 61.367188-23.480468 84.847657-.007812 23.460937 23.449219 23.492187 61.390625.011719 84.859375l-46.242188 46.238281c6.0625 1.082032 12.25 1.621094 18.53125 1.621094 57.898438 0 105-47.101562 105-105s-47.101562-105-105-105-105 47.101562-105 105c0 6.28125.539062 12.46875 1.621094 18.539062zm0 0"></path><path d="m407 302c-6.28125 0-12.480469.539062-18.539062 1.621094l46.25 46.230468c23.460937 23.457032 23.46875 61.398438 0 84.859376-23.449219 23.449218-61.382813 23.460937-84.839844.007812l-46.25-46.25c-1.082032 6.070312-1.621094 12.25-1.621094 18.53125 0 57.898438 47.101562 105 105 105s105-47.101562 105-105-47.101562-105-105-105zm0 0"></path><path d="m105 210c6.28125 0 12.480469-.539062 18.539062-1.621094l-46.25-46.230468c-23.460937-23.457032-23.46875-61.398438 0-84.859376 23.449219-23.449218 61.382813-23.460937 84.839844-.007812l46.25 46.25c1.082032-6.070312 1.621094-12.25 1.621094-18.53125 0-57.898438-47.101562-105-105-105s-105 47.101562-105 105 47.101562 105 105 105zm0 0"></path><path d="m162.148438 434.710938c-23.449219 23.429687-61.367188 23.480468-84.847657.007812-23.402343-23.390625-23.402343-61.449219-.019531-84.847656l46.257812-46.25c-6.058593-1.082032-12.257812-1.621094-18.539062-1.621094-57.898438 0-105 47.101562-105 105s47.101562 105 105 105 105-47.101562 105-105c0-6.28125-.539062-12.46875-1.621094-18.539062zm0 0"></path></svg>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section className="h-screen relative w-full z-20">
+              <div className="container h-full flex justify-center items-center flex-col mx-auto">
+                <span className="text-9xl font-black text-[#43ffcc] section__title">Valori</span>
+                <span className="text-7xl font-black text-white section__description animation-reveal" data-from-color="#fff" data-to-color="#43ffcc">&quot;Crediamo che un mondo in cui tutto è connesso sia un mondo migliore, noi lavoriamo per arrivarci il prima possibile.&quot;</span>
+              </div>
+            </section>
+          </>
+        )}
+      </main>
+      <Footer />
+    </>
+  )
 }
