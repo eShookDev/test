@@ -54,8 +54,8 @@ const LoginPage = () => {
                         <div className="grid gap-6">
                             {isLoggedIn && (
                                 <>
-                                    <p>email: {user.username}</p>
-                                    <p>password: {user.password}</p>
+                                    <p>email: {user?.username}</p>
+                                    <p>password: {user?.password}</p>
                                 </>
                             )}
                             {!isLoggedIn && (
